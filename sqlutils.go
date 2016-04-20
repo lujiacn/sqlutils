@@ -117,7 +117,7 @@ func RowToRawData(rows *sql.Rows) (r RawData) {
 	return
 }
 
-//SingleRowToArray
+//SingleRowToArrayChan
 func RowToArrayChan(rows *sql.Rows) chan interface{} {
 	resultC := make(chan interface{})
 
