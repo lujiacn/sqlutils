@@ -122,6 +122,8 @@ func RowToArrayChan(rows *sql.Rows) chan interface{} {
 	resultC := make(chan interface{})
 
 	columns, err := rows.Columns()
+	//for mongodb storage, replace . with _ in columns
+
 	if err != nil {
 		resultC <- err
 		close(resultC)
@@ -146,7 +148,11 @@ func RowToArrayChan(rows *sql.Rows) chan interface{} {
 			// all conver to string
 			for i := range columns {
 				val := rawCols[i]
-				resultCols[i] = fmt.Sprintf("%v", val)
+				if val != nil {
+					resultCols[i] = fmt.Sprintf("%v", val)
+				} else {
+					resultCols[i] = ""
+				}
 			}
 			resultC <- resultCols
 		}
