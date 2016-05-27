@@ -66,7 +66,16 @@ func RowToMap(rows *sql.Rows) []map[string]string {
 		// all conver to string
 		for i, c := range columns {
 			val := rawCols[i]
-			resultCols[c] = fmt.Sprintf("%v", val)
+			if val == nil {
+				resultCols[c] = ""
+			} else {
+				switch val.(type) {
+				case sql.RawBytes:
+					resultCols[c] = string(val.(sql.RawBytes))
+				default:
+					resultCols[c] = fmt.Sprintf("%v", val)
+				}
+			}
 		}
 		records = append(records, resultCols)
 	}
@@ -100,7 +109,16 @@ func RowToArr(rows *sql.Rows) (records [][]string, err error) {
 		// all conver to string
 		for i := range columns {
 			val := rawCols[i]
-			resultCols[i] = fmt.Sprintf("%v", val)
+			if val == nil {
+				resultCols[i] = ""
+			} else {
+				switch val.(type) {
+				case sql.RawBytes:
+					resultCols[i] = string(val.(sql.RawBytes))
+				default:
+					resultCols[i] = fmt.Sprintf("%v", val)
+				}
+			}
 		}
 		records = append(records, resultCols)
 	}
@@ -152,10 +170,10 @@ func RowToArrayChan(rows *sql.Rows) chan interface{} {
 					resultCols[i] = ""
 				} else {
 					switch val.(type) {
-					case byte:
-						resultCols[i] = string(val.(byte))
-					default:
+					case int, int32, int64:
 						resultCols[i] = fmt.Sprintf("%v", val)
+					default:
+						resultCols[i] = fmt.Sprintf("%s", val)
 					}
 				}
 			}
