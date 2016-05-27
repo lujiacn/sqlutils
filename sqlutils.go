@@ -148,10 +148,15 @@ func RowToArrayChan(rows *sql.Rows) chan interface{} {
 			// all conver to string
 			for i := range columns {
 				val := rawCols[i]
-				if val != nil {
-					resultCols[i] = fmt.Sprintf("%v", val)
-				} else {
+				if val == nil {
 					resultCols[i] = ""
+				} else {
+					switch val.(type) {
+					case byte:
+						resultCols[i] = string(val.(byte))
+					default:
+						resultCols[i] = fmt.Sprintf("%v", val)
+					}
 				}
 			}
 			resultC <- resultCols
