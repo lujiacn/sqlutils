@@ -44,7 +44,7 @@ func RowToMapJSON(rows *sql.Rows) string {
 	record := RowToMap(rows)
 	b, err := json.Marshal(record)
 	if err != nil {
-		fmt.Print("%v", err)
+		return fmt.Sprintf("{'error': '%v'}", err)
 	}
 	return string(b)
 }
@@ -70,10 +70,10 @@ func RowToMap(rows *sql.Rows) []map[string]string {
 				resultCols[c] = ""
 			} else {
 				switch val.(type) {
-				case sql.RawBytes:
-					resultCols[c] = string(val.(sql.RawBytes))
-				default:
+				case int, int32, int64:
 					resultCols[c] = fmt.Sprintf("%v", val)
+				default:
+					resultCols[c] = fmt.Sprintf("%s", val)
 				}
 			}
 		}
@@ -113,10 +113,10 @@ func RowToArr(rows *sql.Rows) (records [][]string, err error) {
 				resultCols[i] = ""
 			} else {
 				switch val.(type) {
-				case sql.RawBytes:
-					resultCols[i] = string(val.(sql.RawBytes))
-				default:
+				case int, int32, int64:
 					resultCols[i] = fmt.Sprintf("%v", val)
+				default:
+					resultCols[i] = fmt.Sprintf("%s", val)
 				}
 			}
 		}
