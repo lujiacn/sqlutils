@@ -73,7 +73,7 @@ func RowToMap(rows *sql.Rows) []map[string]string {
 				case int, int32, int64:
 					resultCols[c] = fmt.Sprintf("%v", val)
 				default:
-					resultCols[c] = fmt.Sprintf("%s", val)
+					resultCols[c] = fmt.Sprintf("%v", val)
 				}
 			}
 		}
@@ -116,7 +116,7 @@ func RowToArr(rows *sql.Rows) (records [][]string, err error) {
 				case int, int32, int64:
 					resultCols[i] = fmt.Sprintf("%v", val)
 				default:
-					resultCols[i] = fmt.Sprintf("%s", val)
+					resultCols[i] = fmt.Sprintf("%v", val)
 				}
 			}
 		}
