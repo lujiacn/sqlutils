@@ -80,11 +80,16 @@ func assertTypeArray(cols []string, rawCols []interface{}) []string {
 			case int, int32, int64:
 				resultCols[i] = fmt.Sprintf("%v", val)
 			case ora.Lob:
-				b, err := ioutil.ReadAll(val.(ora.Lob))
-				if err != nil {
-					resultCols[i] = fmt.Sprintf("%v", err)
+				newVal, ok := val.(ora.Lob)
+				if ok {
+					b, err := ioutil.ReadAll(newVal)
+					if err != nil {
+						resultCols[i] = fmt.Sprintf("%v", err)
+					} else {
+						resultCols[i] = string(b)
+					}
 				} else {
-					resultCols[i] = string(b)
+					resultCols[i] = ""
 				}
 			default:
 				resultCols[i] = fmt.Sprintf("%s", val)
