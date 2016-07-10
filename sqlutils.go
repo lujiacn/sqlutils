@@ -7,6 +7,8 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"gopkg.in/rana/ora.v3"
+	"io/ioutil"
 	"time"
 )
 
@@ -49,6 +51,49 @@ func RowToMapJSON(rows *sql.Rows) string {
 	return string(b)
 }
 
+func assertTypeMap(cols []string, rawCols []interface{}) map[string]string {
+	resultCols := make(map[string]string, len(cols))
+	for i, c := range cols {
+		val := rawCols[i]
+		if val == nil {
+			resultCols[c] = ""
+		} else {
+			switch val.(type) {
+			case int, int32, int64:
+				resultCols[c] = fmt.Sprintf("%v", val)
+			default:
+				resultCols[c] = fmt.Sprintf("%s", val)
+			}
+		}
+	}
+	return resultCols
+}
+
+func assertTypeArray(cols []string, rawCols []interface{}) []string {
+	resultCols := make([]string, len(cols))
+	for i, _ := range cols {
+		val := rawCols[i]
+		if val == nil {
+			resultCols[i] = ""
+		} else {
+			switch val.(type) {
+			case int, int32, int64:
+				resultCols[i] = fmt.Sprintf("%v", val)
+			case ora.Lob:
+				b, err := ioutil.ReadAll(val.(ora.Lob))
+				if err != nil {
+					resultCols[i] = fmt.Sprintf("%v", err)
+				} else {
+					resultCols[i] = string(b)
+				}
+			default:
+				resultCols[i] = fmt.Sprintf("%s", val)
+			}
+		}
+	}
+	return resultCols
+}
+
 //RowtoMap conver to  []map[string]string
 func RowToMap(rows *sql.Rows) []map[string]string {
 	columns, _ := rows.Columns()
@@ -57,26 +102,15 @@ func RowToMap(rows *sql.Rows) []map[string]string {
 	rawCols := make([]interface{}, count)
 	var records []map[string]string
 	for rows.Next() {
-		resultCols := make(map[string]string, count)
+		// resultCols := make(map[string]string, count)
 		for i := range columns {
 			readCols[i] = &rawCols[i]
 		}
 		rows.Scan(readCols...)
 
 		// all conver to string
-		for i, c := range columns {
-			val := rawCols[i]
-			if val == nil {
-				resultCols[c] = ""
-			} else {
-				switch val.(type) {
-				case int, int32, int64:
-					resultCols[c] = fmt.Sprintf("%v", val)
-				default:
-					resultCols[c] = fmt.Sprintf("%v", val)
-				}
-			}
-		}
+		resultCols := assertTypeMap(columns, rawCols)
+
 		records = append(records, resultCols)
 	}
 	return records
@@ -95,9 +129,9 @@ func RowToArr(rows *sql.Rows) (records [][]string, err error) {
 	//records = make([]interface{}, 0)
 	records = append(records, columns) //append row header as 1st row
 
-	var resultCols []string
+	// var resultCols []string
 	for rows.Next() {
-		resultCols = make([]string, count)
+		// resultCols = make([]string, count)
 		for i := range columns {
 			readCols[i] = &rawCols[i]
 		}
@@ -106,20 +140,7 @@ func RowToArr(rows *sql.Rows) (records [][]string, err error) {
 			return
 		}
 
-		// all conver to string
-		for i := range columns {
-			val := rawCols[i]
-			if val == nil {
-				resultCols[i] = ""
-			} else {
-				switch val.(type) {
-				case int, int32, int64:
-					resultCols[i] = fmt.Sprintf("%v", val)
-				default:
-					resultCols[i] = fmt.Sprintf("%v", val)
-				}
-			}
-		}
+		resultCols := assertTypeArray(columns, rawCols)
 		records = append(records, resultCols)
 	}
 
@@ -153,7 +174,7 @@ func RowToArrayChan(rows *sql.Rows) chan interface{} {
 	//records = make([]interface{}, 0)
 	go func() {
 		for rows.Next() {
-			resultCols := make([]string, count)
+			// resultCols := make([]string, count)
 			for i := range columns {
 				readCols[i] = &rawCols[i]
 			}
@@ -164,19 +185,8 @@ func RowToArrayChan(rows *sql.Rows) chan interface{} {
 			}
 
 			// all conver to string
-			for i := range columns {
-				val := rawCols[i]
-				if val == nil {
-					resultCols[i] = ""
-				} else {
-					switch val.(type) {
-					case int, int32, int64:
-						resultCols[i] = fmt.Sprintf("%v", val)
-					default:
-						resultCols[i] = fmt.Sprintf("%s", val)
-					}
-				}
-			}
+			resultCols := assertTypeArray(columns, rawCols)
+
 			resultC <- resultCols
 		}
 		close(resultC)
