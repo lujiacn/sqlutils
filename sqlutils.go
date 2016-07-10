@@ -61,6 +61,18 @@ func assertTypeMap(cols []string, rawCols []interface{}) map[string]string {
 			switch val.(type) {
 			case int, int32, int64:
 				resultCols[c] = fmt.Sprintf("%v", val)
+			case ora.Lob:
+				newVal, ok := val.(ora.Lob)
+				if ok && newVal.Reader != nil {
+					b, err := ioutil.ReadAll(newVal)
+					if err != nil {
+						resultCols[c] = fmt.Sprintf("%v", err)
+					} else {
+						resultCols[c] = string(b)
+					}
+				} else {
+					resultCols[c] = ""
+				}
 			default:
 				resultCols[c] = fmt.Sprintf("%s", val)
 			}
@@ -81,7 +93,7 @@ func assertTypeArray(cols []string, rawCols []interface{}) []string {
 				resultCols[i] = fmt.Sprintf("%v", val)
 			case ora.Lob:
 				newVal, ok := val.(ora.Lob)
-				if ok {
+				if ok && newVal.Reader != nil {
 					b, err := ioutil.ReadAll(newVal)
 					if err != nil {
 						resultCols[i] = fmt.Sprintf("%v", err)
