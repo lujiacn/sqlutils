@@ -8,7 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"gopkg.in/rana/ora.v3"
-	// "io/ioutil"
+	"io/ioutil"
 	"time"
 )
 
@@ -62,18 +62,18 @@ func assertTypeMap(cols []string, rawCols []interface{}) map[string]string {
 			case int, int32, int64:
 				resultCols[c] = fmt.Sprintf("%v", val)
 			case ora.Lob:
-				// newVal, ok := val.(ora.Lob)
-				// if ok && newVal.Reader != nil {
-				// b, err := ioutil.ReadAll(newVal)
-				// if err != nil {
-				// resultCols[c] = fmt.Sprintf("%v", err)
-				// } else {
-				// resultCols[c] = string(b)
-				// }
-				// } else {
-				// resultCols[c] = ""
-				// }
-				resultCols[c] = "Lob"
+				newVal, ok := val.(ora.Lob)
+				if ok && newVal.Reader != nil {
+					b, err := ioutil.ReadAll(newVal)
+					if err != nil {
+						resultCols[c] = fmt.Sprintf("%v", err)
+					} else {
+						resultCols[c] = string(b)
+					}
+				} else {
+					resultCols[c] = ""
+				}
+				newVal.Close()
 			default:
 				resultCols[c] = fmt.Sprintf("%s", val)
 			}
@@ -93,18 +93,18 @@ func assertTypeArray(cols []string, rawCols []interface{}) []string {
 			case int, int32, int64:
 				resultCols[i] = fmt.Sprintf("%v", val)
 			case ora.Lob:
-				// newVal, ok := val.(ora.Lob)
-				// if ok && newVal.Reader != nil {
-				// b, err := ioutil.ReadAll(newVal)
-				// if err != nil {
-				// resultCols[i] = fmt.Sprintf("%v", err)
-				// } else {
-				// resultCols[i] = string(b)
-				// }
-				// } else {
-				// resultCols[i] = ""
-				// }
-				resultCols[i] = "Lob"
+				newVal, ok := val.(ora.Lob)
+				if ok && newVal.Reader != nil {
+					b, err := ioutil.ReadAll(newVal)
+					if err != nil {
+						resultCols[i] = fmt.Sprintf("%v", err)
+					} else {
+						resultCols[i] = string(b)
+					}
+				} else {
+					resultCols[i] = ""
+				}
+				newVal.Close()
 			default:
 				resultCols[i] = fmt.Sprintf("%s", val)
 			}
