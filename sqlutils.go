@@ -70,7 +70,7 @@ func switchType(val interface{}) string {
 		}
 		newVal.Close()
 	default:
-		resultCols[i] = fmt.Sprintf("%s", val)
+		result = fmt.Sprintf("%s", val)
 	}
 	return result
 }
