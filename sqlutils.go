@@ -7,9 +7,10 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
-	"gopkg.in/rana/ora.v3"
 	"io/ioutil"
 	"time"
+
+	"gopkg.in/rana/ora.v4"
 )
 
 //RawData store header and rows
@@ -175,6 +176,7 @@ func RowToArrayChan(rows *sql.Rows) chan interface{} {
 		close(resultC)
 		return resultC
 	}
+
 	count := len(columns)
 	readCols := make([]interface{}, count)
 	rawCols := make([]interface{}, count)
