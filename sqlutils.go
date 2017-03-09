@@ -57,8 +57,8 @@ func switchType(val interface{}) string {
 	switch val.(type) {
 	case int, int32, int64, float64:
 		result = fmt.Sprintf("%v", val)
-	case ora.Lob:
-		newVal, ok := val.(ora.Lob)
+	case *ora.Lob:
+		newVal, ok := val.(*ora.Lob)
 		if ok && newVal.Reader != nil {
 			b, err := ioutil.ReadAll(newVal)
 			if err != nil {
