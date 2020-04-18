@@ -7,10 +7,7 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"time"
-
-	"gopkg.in/rana/ora.v4"
 )
 
 //RawData store header and rows
@@ -57,19 +54,19 @@ func switchType(val interface{}) string {
 	switch val.(type) {
 	case int, int32, int64, float64:
 		result = fmt.Sprintf("%v", val)
-	case *ora.Lob:
-		newVal, ok := val.(*ora.Lob)
-		if ok && newVal.Reader != nil {
-			b, err := ioutil.ReadAll(newVal)
-			if err != nil {
-				result = fmt.Sprintf("%v", err)
-			} else {
-				result = string(b)
-			}
-		} else {
-			result = ""
-		}
-		newVal.Close()
+	//case *ora.Lob:
+	//newVal, ok := val.(*ora.Lob)
+	//if ok && newVal.Reader != nil {
+	//b, err := ioutil.ReadAll(newVal)
+	//if err != nil {
+	//result = fmt.Sprintf("%v", err)
+	//} else {
+	//result = string(b)
+	//}
+	//} else {
+	//result = ""
+	//}
+	//newVal.Close()
 	default:
 		result = fmt.Sprintf("%s", val)
 	}
